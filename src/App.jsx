@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 
 import Hero from "./components/Hero";
@@ -31,7 +30,9 @@ export default function App() {
   const [recentlyViewed, setRecentlyViewed] = useState(() => {
     try {
       return (
-        JSON.parse(localStorage.getItem("aetre-recently-viewed")) || []
+        JSON.parse(
+          localStorage.getItem("aetre-recently-viewed")
+        ) || []
       );
     } catch {
       return [];
@@ -64,7 +65,10 @@ export default function App() {
   ===================================================== */
 
   const showToast = (message, type = "success") => {
-    setToast({ message, type });
+    setToast({
+      message,
+      type,
+    });
 
     setTimeout(() => {
       setToast(null);
@@ -91,7 +95,10 @@ export default function App() {
     window.addEventListener("mousemove", handleMouseMove);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener(
+        "mousemove",
+        handleMouseMove
+      );
     };
   }, []);
 
@@ -102,13 +109,16 @@ export default function App() {
   useEffect(() => {
     if (isLoading) return;
 
-    const elements = document.querySelectorAll(".aetre-reveal");
+    const elements =
+      document.querySelectorAll(".aetre-reveal");
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("aetre-reveal-visible");
+            entry.target.classList.add(
+              "aetre-reveal-visible"
+            );
           }
         });
       },
@@ -154,17 +164,20 @@ export default function App() {
     }
 
     const AudioCtx =
-      window.AudioContext || window.webkitAudioContext;
+      window.AudioContext ||
+      window.webkitAudioContext;
 
     if (!AudioCtx) {
-      showToast("AMBIENT SOUND NOT SUPPORTED", "error");
+      showToast(
+        "AMBIENT SOUND NOT SUPPORTED",
+        "error"
+      );
       return;
     }
 
     const ctx = new AudioCtx();
 
     const frequencies = [110, 164.81, 220];
-
     const newOscillators = [];
 
     frequencies.forEach((frequency, index) => {
@@ -174,7 +187,8 @@ export default function App() {
       oscillator.type = "sine";
       oscillator.frequency.value = frequency;
 
-      gain.gain.value = index === 0 ? 0.018 : 0.008;
+      gain.gain.value =
+        index === 0 ? 0.018 : 0.008;
 
       oscillator.connect(gain);
       gain.connect(ctx.destination);
@@ -221,7 +235,9 @@ export default function App() {
       ];
     });
 
-    showToast(`${product.name} ADDED TO COLLECTION`);
+    showToast(
+      `${product.name} ADDED TO COLLECTION`
+    );
   };
 
   const handleRemoveFromCart = (id) => {
@@ -278,7 +294,9 @@ export default function App() {
         );
       }
 
-      showToast(`${product.name} ADDED TO WISHLIST`);
+      showToast(
+        `${product.name} ADDED TO WISHLIST`
+      );
 
       return [...prev, product];
     });
@@ -358,8 +376,42 @@ export default function App() {
         .getElementById("shop")
         ?.scrollIntoView({
           behavior: "smooth",
+          block: "start",
         });
     }, 100);
+  };
+
+  /* =====================================================
+     LOGIN
+  ===================================================== */
+
+  const goToLogin = () => {
+    setIsCartOpen(false);
+    setIsWishlistOpen(false);
+    setIsCheckoutOpen(false);
+    setSelectedProduct(null);
+
+    setCurrentPage("login");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  /* =====================================================
+     HOME
+  ===================================================== */
+
+  const goToHome = () => {
+    setCurrentPage("home");
+
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }, 50);
   };
 
   /* =====================================================
@@ -376,7 +428,6 @@ export default function App() {
         }}
       >
         <div className="aetre-loader-inner">
-
           <div className="aetre-loader-logo">
             AÊTRE
           </div>
@@ -385,10 +436,7 @@ export default function App() {
             <span></span>
           </div>
 
-          <p>
-            CRAFTED WITH INTENTION
-          </p>
-
+          <p>CRAFTED WITH INTENTION</p>
         </div>
       </div>
     );
@@ -401,9 +449,7 @@ export default function App() {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#080203] text-[#FDF8F5]">
 
-      {/* =====================================================
-          BACKGROUND
-      ===================================================== */}
+      {/* BACKGROUND */}
 
       <div
         className="fixed inset-0 pointer-events-none"
@@ -451,9 +497,7 @@ export default function App() {
 
       <div className="relative z-10">
 
-        {/* =====================================================
-            CURSOR
-        ===================================================== */}
+        {/* CURSOR */}
 
         <div
           className="aetre-cursor"
@@ -463,9 +507,7 @@ export default function App() {
           }}
         />
 
-        {/* =====================================================
-            TOAST
-        ===================================================== */}
+        {/* TOAST */}
 
         {toast && (
           <div
@@ -492,14 +534,7 @@ export default function App() {
               {/* LOGO */}
 
               <button
-                onClick={() => {
-                  setCurrentPage("home");
-
-                  window.scrollTo({
-                    top: 0,
-                    behavior: "smooth",
-                  });
-                }}
+                onClick={goToHome}
                 className="group relative text-xl sm:text-2xl font-serif tracking-[0.25em] sm:tracking-[0.3em] font-light cursor-pointer"
               >
                 <span className="transition-colors duration-300 group-hover:text-[#E58080]">
@@ -534,27 +569,30 @@ export default function App() {
                 </button>
 
                 <button
-                  onClick={() =>
-                    setCurrentPage("login")
-                  }
-                  className="group relative border border-[#6D1F2D] px-5 py-2.5 text-[#E58080] hover:bg-[#6D1F2D] hover:text-[#FDF8F5] transition-all duration-300 cursor-pointer overflow-hidden"
+                  onClick={goToLogin}
+                  className="border border-[#6D1F2D] px-5 py-2.5 text-[#E58080] hover:bg-[#6D1F2D] hover:text-[#FDF8F5] transition-all duration-300 cursor-pointer"
                 >
-                  <span className="relative z-10">
-                    LOGIN
-                  </span>
+                  LOGIN
                 </button>
 
               </div>
 
               {/* MOBILE HEADER */}
 
-              <div className="flex md:hidden items-center">
+              <div className="flex md:hidden items-center gap-4">
 
                 <button
                   onClick={goToCollection}
                   className="text-[8px] tracking-[0.2em] uppercase text-[#A89292] hover:text-[#E58080] transition-colors"
                 >
                   SHOP
+                </button>
+
+                <button
+                  onClick={goToLogin}
+                  className="border border-[#6D1F2D] px-3 py-2 text-[8px] tracking-[0.2em] uppercase text-[#E58080] hover:bg-[#6D1F2D] hover:text-[#FDF8F5] transition-all duration-300"
+                >
+                  LOGIN
                 </button>
 
               </div>
@@ -569,16 +607,13 @@ export default function App() {
 
         {currentPage === "home" && (
           <>
-
             <div className="aetre-reveal">
               <Hero />
             </div>
 
             <div className="aetre-reveal">
               <ScentQuiz
-                onSelectProduct={(product) =>
-                  openProduct(product)
-                }
+                onSelectProduct={openProduct}
               />
             </div>
 
@@ -588,9 +623,7 @@ export default function App() {
 
             <div className="aetre-reveal">
               <BestSellers
-                onSelectProduct={(product) =>
-                  openProduct(product)
-                }
+                onSelectProduct={openProduct}
                 onAddToCart={handleAddToCart}
                 wishlist={wishlist}
                 onToggleWishlist={
@@ -604,9 +637,7 @@ export default function App() {
               className="aetre-reveal"
             >
               <PerfumeGrid
-                onProductClick={(product) =>
-                  openProduct(product)
-                }
+                onProductClick={openProduct}
                 onAddToCart={handleAddToCart}
                 wishlist={wishlist}
                 onToggleWishlist={
@@ -689,9 +720,7 @@ export default function App() {
               <Newsletter />
             </div>
 
-            {/* =================================================
-                FOOTER
-            ================================================= */}
+            {/* FOOTER */}
 
             <footer className="aetre-reveal border-t border-[#3D141A] bg-[#080203]/95 px-6 py-16">
 
@@ -756,6 +785,13 @@ export default function App() {
                         TRACK ORDER
                       </button>
 
+                      <button
+                        onClick={goToLogin}
+                        className="block hover:text-[#E58080] cursor-pointer"
+                      >
+                        LOGIN
+                      </button>
+
                     </div>
                   </div>
 
@@ -804,7 +840,6 @@ export default function App() {
               </div>
 
             </footer>
-
           </>
         )}
 
@@ -822,9 +857,7 @@ export default function App() {
 
         {currentPage === "login" && (
           <Login
-            onBackHome={() =>
-              setCurrentPage("home")
-            }
+            onBackHome={goToHome}
           />
         )}
 
@@ -896,6 +929,7 @@ export default function App() {
           cart={cart}
           onClearCart={() => {
             setCart([]);
+            setIsCheckoutOpen(false);
             showToast("ORDER COMPLETED");
           }}
         />
@@ -914,7 +948,6 @@ export default function App() {
             }`}
             aria-label="Toggle ambient sound"
           >
-
             <span className="aetre-sound-icon">
               {soundOn ? "◼" : "◉"}
             </span>
@@ -924,7 +957,6 @@ export default function App() {
                 ? "SOUND ON"
                 : "AMBIENT"}
             </span>
-
           </button>
         )}
 
@@ -935,16 +967,7 @@ export default function App() {
         {currentPage !== "login" && (
           <nav className="aetre-mobile-nav md:hidden">
 
-            <button
-              onClick={() => {
-                setCurrentPage("home");
-
-                window.scrollTo({
-                  top: 0,
-                  behavior: "smooth",
-                });
-              }}
-            >
+            <button onClick={goToHome}>
               <span>⌂</span>
               HOME
             </button>
@@ -970,6 +993,11 @@ export default function App() {
             >
               <span>□</span>
               {cartCount}
+            </button>
+
+            <button onClick={goToLogin}>
+              <span>♙</span>
+              LOGIN
             </button>
 
           </nav>
