@@ -9,14 +9,45 @@ function PerfumeGrid({
   onToggleWishlist,
 }) {
   const [filter, setFilter] = useState("ALL");
+  const [animationKey, setAnimationKey] = useState(0);
 
-  const filteredProducts =
-    filter === "ALL"
-      ? products
-      : products.filter(
-          (product) =>
-            String(product.category).toUpperCase() === "UNISEX"
-        );
+  const shuffleProducts = (items) => {
+    const shuffled = [...items];
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const randomIndex = Math.floor(Math.random() * (i + 1));
+
+      [shuffled[i], shuffled[randomIndex]] = [
+        shuffled[randomIndex],
+        shuffled[i],
+      ];
+    }
+
+    return shuffled;
+  };
+
+  const getFilteredProducts = (selectedFilter) => {
+    const filtered =
+      selectedFilter === "ALL"
+        ? products
+        : products.filter(
+            (product) =>
+              String(product.category).toUpperCase() ===
+              selectedFilter
+          );
+
+    return shuffleProducts(filtered);
+  };
+
+  const [displayedProducts, setDisplayedProducts] = useState(() =>
+    shuffleProducts(products)
+  );
+
+  const handleFilterChange = (item) => {
+    setFilter(item);
+    setDisplayedProducts(getFilteredProducts(item));
+    setAnimationKey((prev) => prev + 1);
+  };
 
   return (
     <section
@@ -46,7 +77,7 @@ function PerfumeGrid({
               <button
                 key={item}
                 type="button"
-                onClick={() => setFilter(item)}
+                onClick={() => handleFilterChange(item)}
                 className={`rounded-full px-6 py-3 text-[10px] tracking-[0.25em] transition-all duration-300 ${
                   filter === item
                     ? "bg-[#6D1F2D] text-[#FDF8F5] shadow-lg shadow-[#6D1F2D]/30"
@@ -59,16 +90,22 @@ function PerfumeGrid({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredProducts.map((product) => {
+        <div
+          key={animationKey}
+          className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-[fadeIn_0.6s_ease-out]"
+        >
+          {displayedProducts.map((product, index) => {
             const isWishlisted = wishlist.some(
               (item) => item.id === product.id
             );
 
             return (
               <article
-                key={product.id}
+                key={`${product.id}-${animationKey}`}
                 className="group relative overflow-hidden rounded-2xl border border-[#6D1F2D]/25 bg-[#100306] transition-all duration-500 hover:-translate-y-2 hover:border-[#7D2735]/70 hover:shadow-2xl hover:shadow-black/50"
+                style={{
+                  animation: `productReveal 0.6s ease-out ${index * 0.07}s both`,
+                }}
               >
                 <button
                   type="button"
@@ -101,7 +138,7 @@ function PerfumeGrid({
                     <img
                       src={product.image}
                       alt={product.name}
-                      className="relative z-10 block h-full w-full object-contain p-8"
+                      className="relative z-10 block h-full w-full object-contain p-8 transition-transform duration-700 group-hover:scale-105"
                     />
 
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-1/3 bg-gradient-to-t from-[#100306] to-transparent" />
@@ -146,7 +183,7 @@ function PerfumeGrid({
           })}
         </div>
 
-        {filteredProducts.length === 0 && (
+        {displayedProducts.length === 0 && (
           <div className="py-20 text-center">
             <p className="text-sm tracking-[0.2em] text-[#A89292]">
               NO UNISEX FRAGRANCES FOUND
@@ -154,6 +191,30 @@ function PerfumeGrid({
           </div>
         )}
       </div>
+
+      <style>{`
+        @keyframes productReveal {
+          from {
+            opacity: 0;
+            transform: translateY(35px);
+          }
+
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+
+          to {
+            opacity: 1;
+          }
+        }
+      `}</style>
     </section>
   );
 }
