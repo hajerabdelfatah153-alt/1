@@ -72,7 +72,7 @@ export default function App() {
 
     setTimeout(() => {
       setToast(null);
-    }, 1000);
+    }, 1500);
   };
 
   /* =====================================================
@@ -112,6 +112,8 @@ export default function App() {
     const elements =
       document.querySelectorAll(".aetre-reveal");
 
+    if (!elements.length) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -123,7 +125,7 @@ export default function App() {
         });
       },
       {
-        threshold: 0.12,
+        threshold: 0.08,
       }
     );
 
@@ -131,7 +133,9 @@ export default function App() {
       observer.observe(element);
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, [isLoading, currentPage]);
 
   /* =====================================================
@@ -210,6 +214,8 @@ export default function App() {
   ===================================================== */
 
   const handleAddToCart = (product) => {
+    if (!product) return;
+
     setCart((prev) => {
       const existing = prev.find(
         (item) => item.id === product.id
@@ -281,6 +287,8 @@ export default function App() {
   ===================================================== */
 
   const handleToggleWishlist = (product) => {
+    if (!product) return;
+
     setWishlist((prev) => {
       const exists = prev.some(
         (item) => item.id === product.id
@@ -315,6 +323,8 @@ export default function App() {
   ===================================================== */
 
   const handleViewProduct = (product) => {
+    if (!product) return;
+
     setRecentlyViewed((prev) => {
       const withoutCurrent = prev.filter(
         (item) => item.id !== product.id
@@ -350,6 +360,12 @@ export default function App() {
     setIsCheckoutOpen(true);
   };
 
+  const handleOrderComplete = () => {
+    setCart([]);
+    setIsCheckoutOpen(false);
+    showToast("ORDER COMPLETED");
+  };
+
   const cartCount = cart.reduce(
     (sum, item) => sum + item.quantity,
     0
@@ -360,30 +376,47 @@ export default function App() {
   ===================================================== */
 
   const openProduct = (product) => {
+    if (!product) return;
+
     handleViewProduct(product);
     setSelectedProduct(product);
   };
 
   /* =====================================================
-     COLLECTION
+     NAVIGATION
   ===================================================== */
 
   const goToCollection = () => {
     setCurrentPage("home");
 
     setTimeout(() => {
-      document
-        .getElementById("shop")
-        ?.scrollIntoView({
+      const shopSection =
+        document.getElementById("shop");
+
+      if (shopSection) {
+        shopSection.scrollIntoView({
           behavior: "smooth",
           block: "start",
         });
-    }, 100);
+      }
+    }, 150);
   };
 
-  /* =====================================================
-     LOGIN
-  ===================================================== */
+  const goToTracking = () => {
+    setIsCartOpen(false);
+    setIsWishlistOpen(false);
+    setIsCheckoutOpen(false);
+    setSelectedProduct(null);
+
+    setCurrentPage("tracking");
+
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }, 50);
+  };
 
   const goToLogin = () => {
     setIsCartOpen(false);
@@ -393,15 +426,13 @@ export default function App() {
 
     setCurrentPage("login");
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }, 50);
   };
-
-  /* =====================================================
-     HOME
-  ===================================================== */
 
   const goToHome = () => {
     setCurrentPage("home");
@@ -436,7 +467,9 @@ export default function App() {
             <span></span>
           </div>
 
-          <p>CRAFTED WITH INTENTION</p>
+          <p>
+            CRAFTED WITH INTENTION
+          </p>
         </div>
       </div>
     );
@@ -527,73 +560,61 @@ export default function App() {
         ===================================================== */}
 
         {currentPage !== "login" && (
-          <header className="sticky top-0 z-40 border-b border-[#3D141A] bg-[#080203]/90 backdrop-blur-xl">
+          <header className="sticky top-0 z-50 border-b border-[#3D141A] bg-[#080203]/95 backdrop-blur-xl">
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5">
 
-              {/* LOGO */}
+              <div className="flex items-center justify-between">
 
-              <button
-                onClick={goToHome}
-                className="group relative text-xl sm:text-2xl font-serif tracking-[0.25em] sm:tracking-[0.3em] font-light cursor-pointer"
-              >
-                <span className="transition-colors duration-300 group-hover:text-[#E58080]">
-                  AÊTRE
-                </span>
-
-                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-px bg-[#E58080] transition-all duration-500 group-hover:w-full"></span>
-              </button>
-
-              {/* DESKTOP NAV */}
-
-              <div className="hidden md:flex items-center gap-8 text-[9px] tracking-[0.22em] uppercase">
+                {/* LOGO */}
 
                 <button
-                  onClick={goToCollection}
-                  className="text-[#A89292] hover:text-[#E58080] transition-colors cursor-pointer"
+                  onClick={goToHome}
+                  className="group relative shrink-0 text-xl sm:text-2xl font-serif tracking-[0.25em] sm:tracking-[0.3em] font-light cursor-pointer"
                 >
-                  COLLECTION
+                  <span className="transition-colors duration-300 group-hover:text-[#E58080]">
+                    AÊTRE
+                  </span>
+
+                  <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-px bg-[#E58080] transition-all duration-500 group-hover:w-full group-hover:w-full"></span>
                 </button>
 
-                <button
-                  onClick={() =>
-                    setCurrentPage("tracking")
-                  }
-                  className={`transition-colors cursor-pointer ${
-                    currentPage === "tracking"
-                      ? "text-[#E58080]"
-                      : "text-[#A89292] hover:text-[#E58080]"
-                  }`}
-                >
-                  TRACK ORDER
-                </button>
+                {/* NAV */}
 
-                <button
-                  onClick={goToLogin}
-                  className="border border-[#6D1F2D] px-5 py-2.5 text-[#E58080] hover:bg-[#6D1F2D] hover:text-[#FDF8F5] transition-all duration-300 cursor-pointer"
-                >
-                  LOGIN
-                </button>
+                <nav className="flex items-center gap-4 sm:gap-7 md:gap-8 text-[7px] sm:text-[8px] md:text-[9px] tracking-[0.15em] sm:tracking-[0.20em] md:tracking-[0.22em] uppercase">
 
-              </div>
+                  {/* COLLECTION */}
 
-              {/* MOBILE HEADER */}
+                  <button
+                    onClick={goToCollection}
+                    className="whitespace-nowrap text-[#A89292] hover:text-[#E58080] transition-colors duration-300 cursor-pointer"
+                  >
+                    COLLECTION
+                  </button>
 
-              <div className="flex md:hidden items-center gap-4">
+                  {/* TRACK ORDER */}
 
-                <button
-                  onClick={goToCollection}
-                  className="text-[8px] tracking-[0.2em] uppercase text-[#A89292] hover:text-[#E58080] transition-colors"
-                >
-                  SHOP
-                </button>
+                  <button
+                    onClick={goToTracking}
+                    className={`whitespace-nowrap transition-colors duration-300 cursor-pointer ${
+                      currentPage === "tracking"
+                        ? "text-[#E58080]"
+                        : "text-[#A89292] hover:text-[#E58080]"
+                    }`}
+                  >
+                    TRACK ORDER
+                  </button>
 
-                <button
-                  onClick={goToLogin}
-                  className="border border-[#6D1F2D] px-3 py-2 text-[8px] tracking-[0.2em] uppercase text-[#E58080] hover:bg-[#6D1F2D] hover:text-[#FDF8F5] transition-all duration-300"
-                >
-                  LOGIN
-                </button>
+                  {/* LOGIN */}
+
+                  <button
+                    onClick={goToLogin}
+                    className="whitespace-nowrap border border-[#6D1F2D] px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 text-[#E58080] hover:bg-[#6D1F2D] hover:text-[#FDF8F5] transition-all duration-300 cursor-pointer"
+                  >
+                    LOGIN
+                  </button>
+
+                </nav>
 
               </div>
 
@@ -607,9 +628,14 @@ export default function App() {
 
         {currentPage === "home" && (
           <>
+
+            {/* HERO */}
+
             <div className="aetre-reveal">
               <Hero />
             </div>
+
+            {/* SCENT QUIZ */}
 
             <div className="aetre-reveal">
               <ScentQuiz
@@ -617,9 +643,13 @@ export default function App() {
               />
             </div>
 
+            {/* SIGNATURE */}
+
             <div className="aetre-reveal">
               <SignatureSection />
             </div>
+
+            {/* BEST SELLERS */}
 
             <div className="aetre-reveal">
               <BestSellers
@@ -632,9 +662,13 @@ export default function App() {
               />
             </div>
 
-            <div
+            {/* =================================================
+                COLLECTION / PRODUCTS
+            ================================================= */}
+
+            <section
               id="shop"
-              className="aetre-reveal"
+              className="w-full"
             >
               <PerfumeGrid
                 onProductClick={openProduct}
@@ -647,12 +681,14 @@ export default function App() {
                   handleViewProduct
                 }
               />
-            </div>
+            </section>
 
-            {/* RECENTLY VIEWED */}
+            {/* =================================================
+                RECENTLY VIEWED
+            ================================================= */}
 
             {recentlyViewed.length > 0 && (
-              <section className="aetre-reveal max-w-7xl mx-auto px-5 sm:px-6 py-20 md:py-24 border-t border-[#3D141A]">
+              <section className="max-w-7xl mx-auto px-5 sm:px-6 py-20 md:py-24 border-t border-[#3D141A]">
 
                 <div className="text-center mb-10 md:mb-12">
 
@@ -720,13 +756,17 @@ export default function App() {
               <Newsletter />
             </div>
 
-            {/* FOOTER */}
+            {/* =================================================
+                FOOTER
+            ================================================= */}
 
-            <footer className="aetre-reveal border-t border-[#3D141A] bg-[#080203]/95 px-6 py-16">
+            <footer className="border-t border-[#3D141A] bg-[#080203] px-6 py-14 sm:py-16">
 
               <div className="max-w-7xl mx-auto">
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 md:gap-12">
+
+                  {/* BRAND */}
 
                   <div className="sm:col-span-2">
 
@@ -743,6 +783,8 @@ export default function App() {
 
                   </div>
 
+                  {/* EXPLORE */}
+
                   <div>
 
                     <p className="text-[9px] tracking-[0.3em] text-[#E58080] mb-5">
@@ -753,7 +795,7 @@ export default function App() {
 
                       <button
                         onClick={goToCollection}
-                        className="block hover:text-[#E58080] cursor-pointer"
+                        className="block hover:text-[#E58080] transition-colors cursor-pointer"
                       >
                         COLLECTION
                       </button>
@@ -762,7 +804,7 @@ export default function App() {
                         onClick={() =>
                           setIsWishlistOpen(true)
                         }
-                        className="block hover:text-[#E58080] cursor-pointer"
+                        className="block hover:text-[#E58080] transition-colors cursor-pointer"
                       >
                         WISHLIST
                       </button>
@@ -771,29 +813,30 @@ export default function App() {
                         onClick={() =>
                           setIsCartOpen(true)
                         }
-                        className="block hover:text-[#E58080] cursor-pointer"
+                        className="block hover:text-[#E58080] transition-colors cursor-pointer"
                       >
                         SHOPPING BAG
                       </button>
 
                       <button
-                        onClick={() =>
-                          setCurrentPage("tracking")
-                        }
-                        className="block hover:text-[#E58080] cursor-pointer"
+                        onClick={goToTracking}
+                        className="block hover:text-[#E58080] transition-colors cursor-pointer"
                       >
                         TRACK ORDER
                       </button>
 
                       <button
                         onClick={goToLogin}
-                        className="block hover:text-[#E58080] cursor-pointer"
+                        className="block hover:text-[#E58080] transition-colors cursor-pointer"
                       >
                         LOGIN
                       </button>
 
                     </div>
+
                   </div>
+
+                  {/* AÊTRE */}
 
                   <div>
 
@@ -825,6 +868,8 @@ export default function App() {
 
                 </div>
 
+                {/* COPYRIGHT */}
+
                 <div className="border-t border-[#3D141A] mt-14 pt-6 flex flex-col md:flex-row justify-between gap-3 text-[8px] tracking-[0.2em] text-[#604C4C]">
 
                   <span>
@@ -840,6 +885,7 @@ export default function App() {
               </div>
 
             </footer>
+
           </>
         )}
 
@@ -927,11 +973,7 @@ export default function App() {
             setIsCheckoutOpen(false)
           }
           cart={cart}
-          onClearCart={() => {
-            setCart([]);
-            setIsCheckoutOpen(false);
-            showToast("ORDER COMPLETED");
-          }}
+          onClearCart={handleOrderComplete}
         />
 
         {/* =====================================================
@@ -958,49 +1000,6 @@ export default function App() {
                 : "AMBIENT"}
             </span>
           </button>
-        )}
-
-        {/* =====================================================
-            MOBILE BOTTOM NAV
-        ===================================================== */}
-
-        {currentPage !== "login" && (
-          <nav className="aetre-mobile-nav md:hidden">
-
-            <button onClick={goToHome}>
-              <span>⌂</span>
-              HOME
-            </button>
-
-            <button onClick={goToCollection}>
-              <span>◇</span>
-              SHOP
-            </button>
-
-            <button
-              onClick={() =>
-                setIsWishlistOpen(true)
-              }
-            >
-              <span>♡</span>
-              {wishlist.length}
-            </button>
-
-            <button
-              onClick={() =>
-                setIsCartOpen(true)
-              }
-            >
-              <span>□</span>
-              {cartCount}
-            </button>
-
-            <button onClick={goToLogin}>
-              <span>♙</span>
-              LOGIN
-            </button>
-
-          </nav>
         )}
 
       </div>
